@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.Extensions.Logging;
 using Stryker.Core.Logging;
+using Stryker.Core.Mutants.MutationHandlers;
 using Stryker.Core.Mutators;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -32,6 +33,7 @@ namespace Stryker.Core.Mutants
         private int _mutantCount { get; set; } = 0;
         private IEnumerable<IMutator> _mutators { get; set; }
         private ILogger _logger { get; set; }
+        private MutationHandler _mutationHandler { get; set; }
 
         /// <param name="mutators">The mutators that should be active during the mutation process</param>
         /// <param name="mutantFactory">An instance of the mutantFactory, use the same for every file to keep the mutation count increment</param>
@@ -40,6 +42,7 @@ namespace Stryker.Core.Mutants
             _mutators = mutators;
             _mutants = new Collection<Mutant>();
             _logger = ApplicationLogging.LoggerFactory.CreateLogger<MutantOrchestrator>();
+            _mutationHandler = new MutationTernaryPlacer().SetSuccessor(new MutationIfPlacer());
         }
 
         /// <summary>
@@ -141,6 +144,8 @@ namespace Stryker.Core.Mutants
         /// </summary>
         private IfStatementSyntax MutantIf(StatementSyntax original, StatementSyntax mutated, int mutantId)
         {
+            return (IfStatementSyntax)_mutationHandler.HandleInsertMutation(original, mutated, mutantId);
+
             // place the mutated statement inside the if statement
             IfStatementSyntax mutantIf = SyntaxFactory.IfStatement(
                 condition: SyntaxFactory.BinaryExpression(SyntaxKind.EqualsExpression,
