@@ -9,9 +9,47 @@
                 "TERM=xterm",
                 "dotnet",
                 "build",
-                "${workspaceFolder}/src/Stryker.CLI/Stryker.CLI/Stryker.CLI.csproj"
+                "${workspaceFolder}/src/Stryker.CLI/Stryker.CLI/Stryker.CLI.csproj",
             ],
-            "problemMatcher": "$msCompile"
-        }
-    ]
+            "problemMatcher": "$msCompile",
+        },
+        {
+            "label": "Run on Core",
+            "command": "env",
+            "type": "process",
+            "args": [
+                "TERM=xterm",
+                "dotnet",
+                "run",
+                "-p",
+                "${workspaceFolder}/src/Stryker.CLI/Stryker.CLI/Stryker.CLI.csproj",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/Stryker.Core/Stryker.Core.UnitTest"
+            },
+            "dependsOn": [
+                "build"
+            ],
+            "problemMatcher": [],
+        },
+        {
+            "label": "Run on CLI",
+            "command": "env",
+            "type": "process",
+            "args": [
+                "TERM=xterm",
+                "dotnet",
+                "run",
+                "-p",
+                "${workspaceFolder}/src/Stryker.CLI/Stryker.CLI/Stryker.CLI.csproj",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/Stryker.CLI/Stryker.CLI.UnitTest"
+            },
+            "dependsOn": [
+                "build"
+            ],
+            "problemMatcher": [],
+        },
+    ],
 }
