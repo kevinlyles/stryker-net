@@ -19,12 +19,10 @@ namespace Stryker.Core.Compiling
     {
         private List<int> _rollbackedIds { get; set; }
         private ILogger _logger { get; set; }
-        private MutationHandler _mutationHandler { get; set; }
 
         public RollbackProcess()
         {
             _logger = ApplicationLogging.LoggerFactory.CreateLogger<RollbackProcess>();
-            _mutationHandler = new MutationTernaryPlacer().SetSuccessor(new MutationIfPlacer());
         }
 
         public RollbackProcessResult Start(CSharpCompilation compiler, ImmutableArray<Diagnostic> diagnostics)
@@ -43,7 +41,7 @@ namespace Stryker.Core.Compiling
             }
 
             // remove the broken mutations from the syntaxtrees
-            foreach(var syntaxTreeMap in syntaxTreeMapping.Where(x => x.Value.Any()))
+            foreach (var syntaxTreeMap in syntaxTreeMapping.Where(x => x.Value.Any()))
             {
                 _logger.LogDebug("Rollbacking mutations from {0}", syntaxTreeMap.Key.FilePath);
                 _logger.LogTrace("source {1}", syntaxTreeMap.Key.ToString());
@@ -56,56 +54,76 @@ namespace Stryker.Core.Compiling
             }
 
             // by returning the same compiler object (with different syntax trees) the next compilation will use Roslyns incremental compilation
-            return new RollbackProcessResult() {
+            return new RollbackProcessResult()
+            {
                 Compilation = compiler,
                 RollbackedIds = _rollbackedIds
             };
         }
 
-        private IfStatementSyntax FindMutationIf(SyntaxNode node)
+        private SyntaxNode FindMutationConditional(SyntaxNode node)
         {
             var annotation = node.GetAnnotations(new string[] { "MutationIf", "MutationTernary" });
-            if (annotation.Any() && node is IfStatementSyntax mutantIf)
+            if (annotation.Any())
             {
                 string data = annotation.First().Data;
                 int mutantId = int.Parse(data);
-                _rollbackedIds.Add(mutantId);
-                _logger.LogDebug("Found id {0} in MutantIf annotation", mutantId);
-                return mutantIf;
-            }
-            else
-            {
-                if(node.Parent == null)
+                if (node is IfStatementSyntax mutantIf)
                 {
-                    return null; 
+                    _rollbackedIds.Add(mutantId);
+                    _logger.LogDebug("Found id {0} in MutantIf annotation", mutantId);
+                    return mutantIf;
                 }
-                return FindMutationIf(node.Parent);
+                else if (node is ConditionalExpressionSyntax mutantTernary)
+                {
+                    _rollbackedIds.Add(mutantId);
+                    _logger.LogDebug("Found id {0} in MutantTernary annotation", mutantId);
+                    return mutantTernary;
+                }
+                else
+                {
+                    return null;
+                }
             }
+            else if (node.Parent == null)
+            {
+                return null;
+            }
+            return FindMutationConditional(node.Parent);
         }
 
         private SyntaxTree RemoveMutantIfStatements(SyntaxTree originalTree, ICollection<Diagnostic> diagnosticInfo)
         {
             var rollbackRoot = originalTree.GetRoot();
             // find all if statements to remove
-            var brokenMutations = new Collection<IfStatementSyntax>();
+            var brokenMutations = new Collection<SyntaxNode>();
             foreach (var diagnostic in diagnosticInfo)
             {
                 var brokenMutation = rollbackRoot.FindNode(diagnostic.Location.SourceSpan);
-                var mutationIf = FindMutationIf(brokenMutation);
-                if(mutationIf == null)
+                var mutationConditional = FindMutationConditional(brokenMutation);
+                if (mutationConditional == null)
                 {
                     _logger.LogError("Unable to rollback mutation for node {0} with diagnosticmessage {1}", brokenMutation, diagnostic.GetMessage());
                 }
-                brokenMutations.Add(mutationIf);
+                brokenMutations.Add(mutationConditional);
             }
             // mark the if statements to track
             var trackedTree = rollbackRoot.TrackNodes(brokenMutations);
             foreach (var brokenMutation in brokenMutations)
             {
-                // find the ifstatement in the new tree
+                // find the conditional in the new tree
                 var nodeToRemove = trackedTree.GetCurrentNode(brokenMutation);
+                SyntaxNode replacement = null;
+                if (nodeToRemove is StatementSyntax statement)
+                {
+                    replacement = MutationIfPlacer.RemoveMutation(nodeToRemove);
+                }
+                else if (nodeToRemove is ExpressionSyntax expression)
+                {
+                    replacement = MutationTernaryPlacer.RemoveMutation(nodeToRemove);
+                }
                 // remove the ifstatement and update the tree
-                trackedTree = trackedTree.ReplaceNode(nodeToRemove, _mutationHandler.HandleRemoveMutation(nodeToRemove));
+                trackedTree = trackedTree.ReplaceNode(nodeToRemove, replacement ?? SyntaxFactory.EmptyStatement());
             }
             return trackedTree.SyntaxTree;
         }

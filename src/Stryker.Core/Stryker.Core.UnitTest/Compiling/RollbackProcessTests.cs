@@ -4,6 +4,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using Shouldly;
 using Stryker.Core.Compiling;
+using Stryker.Core.Mutants;
+using Stryker.Core.Mutators;
 using Stryker.Core.UnitTest.MutationTest;
 using System;
 using System.Collections.Generic;
@@ -42,7 +44,7 @@ if(Environment.GetEnvironmentVariable(""ActiveMutation"") == ""1"") {
                 .First();
             var annotatedSyntaxTree = syntaxTree.GetRoot()
                 .ReplaceNode(
-                    ifStatement, 
+                    ifStatement,
                     ifStatement.WithAdditionalAnnotations(new SyntaxAnnotation("MutationIf", "1"))
                 ).SyntaxTree;
 
@@ -61,7 +63,7 @@ if(Environment.GetEnvironmentVariable(""ActiveMutation"") == ""1"") {
                 var compileResult = compiler.Emit(ms);
 
                 var fixedCompilation = target.Start(compiler, compileResult.Diagnostics);
-                
+
                 var rollbackedResult = fixedCompilation.Compilation.Emit(ms);
 
                 rollbackedResult.Success.ShouldBeTrue();
@@ -79,39 +81,29 @@ namespace ExampleProject
     {
         public string Subtract(string first, string second)
         {
-            if(Environment.GetEnvironmentVariable(""ActiveMutation"") == ""6"") {
+            if (Environment.GetEnvironmentVariable(""ActiveMutation"") == ""6"") {
                 while (first.Length > 2)
                 {
                     return first - second;
                 } 
+            } else {
+                while (first.Length > 2)
+                {
+                    return first + second;
+                }
+            }
+            if (Environment.GetEnvironmentVariable(""ActiveMutation"") == ""7"") {
+                while (first.Length < 2)
+                {
+                    return second - first;
+                }
+            } else {
                 while (first.Length < 2)
                 {
                     return second + first;
                 }
-                return null;
-            } else {
-                if(Environment.GetEnvironmentVariable(""ActiveMutation"") == ""7"") {
-                    while (first.Length > 2)
-                    {
-                        return first + second;
-                    }
-                    while (first.Length < 2)
-                    {
-                        return second - first;
-                    }
-                    return null;
-                } else {
-                    while (first.Length > 2)
-                    {
-                        return first + second;
-                    } 
-                    while (first.Length < 2)
-                    {
-                        return second + first;
-                    }
-                    return null;
-                }
             }
+            return null;
         }
     }
 }");
