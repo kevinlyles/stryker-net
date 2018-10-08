@@ -51,8 +51,8 @@ namespace Stryker.Core.Mutants
         /// <returns>Mutated node</returns>
         public SyntaxNode Mutate(SyntaxNode currentNode)
         {
-            // No statement found yet, search deeper in the tree for statements to mutate
-            var editor = new SyntaxEditor(currentNode, new AdhocWorkspace());
+            SyntaxNode ast = currentNode;
+
             foreach (SyntaxNode childNode in currentNode.ChildNodes())
             {
                 var mutatedNode = Mutate(childNode);
@@ -60,13 +60,12 @@ namespace Stryker.Core.Mutants
                 {
                     Console.WriteLine("KIND: " + currentNode.Kind());
                     Console.WriteLine("BEFORE: " + " (" + childNode.Kind() + ") " + childNode);
-                    Console.WriteLine("AFTER: " + " (" + mutatedNode.Kind() + ") " + mutatedNode);
-                    editor.ReplaceNode(childNode, mutatedNode);
+                    Console.WriteLine("AFTER: " + " (" + mutatedNode.Kind() + ")" + mutatedNode);
+                    ast = ast.ReplaceNode(childNode, mutatedNode);
                 }
             }
-            SyntaxNode ast = editor.GetChangedRoot();
 
-            if (currentNode is StatementSyntax statement)
+            if (ast is StatementSyntax statement)
             {
                 StatementSyntax statementAst = statement;
                 foreach (var mutant in FindMutants(statement))
@@ -77,7 +76,7 @@ namespace Stryker.Core.Mutants
                 }
                 ast = statementAst;
             }
-            else if (currentNode is ExpressionSyntax expression)
+            else if (ast is ExpressionSyntax expression)
             {
                 ExpressionSyntax expressionAst = expression;
                 foreach (var mutant in FindMutants(expression))

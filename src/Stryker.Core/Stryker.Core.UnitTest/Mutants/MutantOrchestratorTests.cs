@@ -27,8 +27,8 @@ namespace StrykerNet.UnitTest.Mutants
         }
 
         [Theory]
-        /*[InlineData("Mutator_IfStatementsShouldBe_Nested_IN.cs", "Mutator_IfStatementsShouldBe_Nested_OUT.cs")]
-        [InlineData("Mutator_SyntaxShouldBe_IfStatement_IN.cs", "Mutator_SyntaxShouldBe_IfStatement_OUT.cs")]*/
+        [InlineData("Mutator_IfStatementsShouldBe_Nested_IN.cs", "Mutator_IfStatementsShouldBe_Nested_OUT.cs")]
+        [InlineData("Mutator_SyntaxShouldBe_IfStatement_IN.cs", "Mutator_SyntaxShouldBe_IfStatement_OUT.cs")]
         [InlineData("Mutator_LocalVariableDefinitions_IN.cs", "Mutator_LocalVariableDefinitions_OUT.cs")]
         public void Mutator_TestResourcesInputShouldBecomeOutput(string inputFile, string outputFile)
         {
