@@ -1,4 +1,6 @@
-﻿namespace Stryker.Core.Mutants
+﻿using Microsoft.CodeAnalysis;
+
+namespace Stryker.Core.Mutants
 {
     /// <summary>
     /// This interface should only contain readonly properties to ensure that others than the mutationtest proces cannot modify mutants.

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Stryker.Core.Logging;
 using Stryker.Core.Mutants.MutationHandlers;
 using Stryker.Core.Mutators;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -50,42 +51,46 @@ namespace Stryker.Core.Mutants
         /// <returns>Mutated node</returns>
         public SyntaxNode Mutate(SyntaxNode currentNode)
         {
-            if (currentNode is StatementSyntax statement && !(statement is BlockSyntax))
+            // No statement found yet, search deeper in the tree for statements to mutate
+            var editor = new SyntaxEditor(currentNode, new AdhocWorkspace());
+            foreach (SyntaxNode childNode in currentNode.ChildNodes())
             {
-                StatementSyntax ast = statement;
+                var mutatedNode = Mutate(childNode);
+                if (!childNode.IsEquivalentTo(mutatedNode))
+                {
+                    Console.WriteLine("KIND: " + currentNode.Kind());
+                    Console.WriteLine("BEFORE: " + " (" + childNode.Kind() + ") " + childNode);
+                    Console.WriteLine("AFTER: " + " (" + mutatedNode.Kind() + ") " + mutatedNode);
+                    editor.ReplaceNode(childNode, mutatedNode);
+                }
+            }
+            SyntaxNode ast = editor.GetChangedRoot();
+
+            if (currentNode is StatementSyntax statement)
+            {
+                StatementSyntax statementAst = statement;
                 foreach (var mutant in FindMutants(statement))
                 {
                     _mutants.Add(mutant);
-                    ast = MutationIfPlacer.InsertMutation(ast, ApplyMutant(statement, mutant), mutant.Id);
+                    Console.WriteLine("DEBUG: placed if mutation: " + mutant.Mutation.ReplacementNode.ToString());
+                    statementAst = MutationIfPlacer.InsertMutation(statementAst, ApplyMutant(statement, mutant), mutant.Id);
                 }
-                return ast;
+                ast = statementAst;
             }
             else if (currentNode is ExpressionSyntax expression)
             {
-                ExpressionSyntax ast = expression;
+                ExpressionSyntax expressionAst = expression;
                 foreach (var mutant in FindMutants(expression))
                 {
                     _mutants.Add(mutant);
-                    ast = MutationTernaryPlacer.InsertMutation(ast, ApplyMutant(expression, mutant), mutant.Id);
+                    Console.WriteLine("DEBUG: placed ternary mutation: " + mutant.Mutation.ReplacementNode.ToString());
+                    expressionAst = MutationTernaryPlacer.InsertMutation(expressionAst, ApplyMutant(expression, mutant), mutant.Id);
                 }
-                return ast;
+                ast = expressionAst;
             }
-            else
-            {
-                // No statement found yet, search deeper in the tree for statements to mutate
-                var editor = new SyntaxEditor(currentNode, new AdhocWorkspace());
-                foreach (SyntaxNode childNode in currentNode.ChildNodes())
-                {
-                    var mutatedNode = Mutate(childNode);
-                    if (!childNode.IsEquivalentTo(mutatedNode))
-                    {
-                        editor.ReplaceNode(childNode, mutatedNode);
-                    }
-                }
-                return editor.GetChangedRoot();
-            }
-        }
 
+            return ast;
+        }
 
         private IEnumerable<Mutant> FindMutants(SyntaxNode current)
         {
@@ -96,10 +101,6 @@ namespace Stryker.Core.Mutants
                     yield return mutation;
                 }
             }
-            foreach (var mutant in current.ChildNodes().SelectMany(FindMutants))
-            {
-                yield return mutant;
-            }
         }
 
         /// <summary>
@@ -107,8 +108,7 @@ namespace Stryker.Core.Mutants
         /// </summary>
         private IEnumerable<Mutant> ApplyMutator(SyntaxNode syntaxNode, IMutator mutator)
         {
-            var mutations = mutator.Mutate(syntaxNode);
-            foreach (var mutation in mutations)
+            foreach (var mutation in mutator.Mutate(syntaxNode))
             {
                 _logger.LogDebug("Mutant {0} created {1} -> {2} using {3}", _mutantCount, mutation.OriginalNode, mutation.ReplacementNode, mutator.GetType());
                 yield return new Mutant()
@@ -125,14 +125,6 @@ namespace Stryker.Core.Mutants
             var editor = new SyntaxEditor(statement, new AdhocWorkspace());
             editor.ReplaceNode(mutant.Mutation.OriginalNode, mutant.Mutation.ReplacementNode);
             return editor.GetChangedRoot() as T;
-        }
-
-        /// <summary>
-        /// Places an IfStatementSyntax node around the mutated node and places the original node in the ElseClause block.
-        /// </summary>
-        private StatementSyntax MutantIf(StatementSyntax original, StatementSyntax mutated, int mutantId)
-        {
-            return MutationIfPlacer.InsertMutation(original, mutated, mutantId);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Stryker.Core.Mutants
+﻿using Microsoft.CodeAnalysis;
+
+namespace Stryker.Core.Mutants
 {
     /// <summary>
     /// Represents a single mutation on domain level

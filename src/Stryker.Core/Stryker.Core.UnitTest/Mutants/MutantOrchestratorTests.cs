@@ -15,7 +15,7 @@ namespace StrykerNet.UnitTest.Mutants
     {
         private Collection<IMutator> _mutators { get; set; }
         private string _currentDirectory { get; set; }
-        private MutantOrchestrator _target { get; set; } 
+        private MutantOrchestrator _target { get; set; }
 
         public MutantOrchestratorTests()
         {
@@ -27,8 +27,9 @@ namespace StrykerNet.UnitTest.Mutants
         }
 
         [Theory]
-        [InlineData("Mutator_IfStatementsShouldBe_Nested_IN.cs", "Mutator_IfStatementsShouldBe_Nested_OUT.cs")]
-        [InlineData("Mutator_SyntaxShouldBe_IfStatement_IN.cs", "Mutator_SyntaxShouldBe_IfStatement_OUT.cs")]
+        /*[InlineData("Mutator_IfStatementsShouldBe_Nested_IN.cs", "Mutator_IfStatementsShouldBe_Nested_OUT.cs")]
+        [InlineData("Mutator_SyntaxShouldBe_IfStatement_IN.cs", "Mutator_SyntaxShouldBe_IfStatement_OUT.cs")]*/
+        [InlineData("Mutator_LocalVariableDefinitions_IN.cs", "Mutator_LocalVariableDefinitions_OUT.cs")]
         public void Mutator_TestResourcesInputShouldBecomeOutput(string inputFile, string outputFile)
         {
             string source = File.ReadAllText(_currentDirectory + "/Mutants/TestResources/" + inputFile);

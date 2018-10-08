@@ -1,4 +1,5 @@
-﻿using Stryker.Core.Mutants;
+﻿using Microsoft.CodeAnalysis;
+using Stryker.Core.Mutants;
 using System;
 using System.Collections.Generic;
 
@@ -10,7 +11,8 @@ namespace Stryker.Core.Initialisation.ProjectComponent
         public string FullPath { get; set; }
 
         private IEnumerable<Mutant> _mutants { get; set; }
-        public override IEnumerable<Mutant> Mutants {
+        public override IEnumerable<Mutant> Mutants
+        {
             get => _mutants;
             set => _mutants = value;
         }
