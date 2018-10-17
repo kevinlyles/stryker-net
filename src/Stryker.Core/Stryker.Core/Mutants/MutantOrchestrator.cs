@@ -52,18 +52,17 @@ namespace Stryker.Core.Mutants
         public SyntaxNode Mutate(SyntaxNode currentNode)
         {
             SyntaxNode ast = currentNode;
+            var nodesToReplace = new Dictionary<SyntaxNode, SyntaxNode>();
 
             foreach (SyntaxNode childNode in currentNode.ChildNodes())
             {
                 var mutatedNode = Mutate(childNode);
                 if (!childNode.IsEquivalentTo(mutatedNode))
                 {
-                    Console.WriteLine("KIND: " + currentNode.Kind());
-                    Console.WriteLine("BEFORE: " + " (" + childNode.Kind() + ") " + childNode);
-                    Console.WriteLine("AFTER: " + " (" + mutatedNode.Kind() + ")" + mutatedNode);
-                    ast = ast.ReplaceNode(childNode, mutatedNode);
+                    nodesToReplace.Add(childNode, mutatedNode);
                 }
             }
+            ast = ast.ReplaceNodes(nodesToReplace.Keys, (node, ignored) => nodesToReplace[node]);
 
             if (ast is StatementSyntax statement)
             {
@@ -72,7 +71,7 @@ namespace Stryker.Core.Mutants
                 {
                     _mutants.Add(mutant);
                     Console.WriteLine("DEBUG: placed if mutation: " + mutant.Mutation.ReplacementNode.ToString());
-                    statementAst = MutationIfPlacer.InsertMutation(statementAst, ApplyMutant(statement, mutant), mutant.Id);
+                    statementAst = MutationIfPlacer.InsertMutation(statementAst, ApplyMutant(statementAst, mutant), mutant.Id);
                 }
                 ast = statementAst;
             }
@@ -83,7 +82,7 @@ namespace Stryker.Core.Mutants
                 {
                     _mutants.Add(mutant);
                     Console.WriteLine("DEBUG: placed ternary mutation: " + mutant.Mutation.ReplacementNode.ToString());
-                    expressionAst = MutationTernaryPlacer.InsertMutation(expressionAst, ApplyMutant(expression, mutant), mutant.Id);
+                    expressionAst = MutationTernaryPlacer.InsertMutation(expressionAst, ApplyMutant(expressionAst, mutant), mutant.Id);
                 }
                 ast = expressionAst;
             }
@@ -121,9 +120,7 @@ namespace Stryker.Core.Mutants
 
         private T ApplyMutant<T>(T statement, Mutant mutant) where T : SyntaxNode
         {
-            var editor = new SyntaxEditor(statement, new AdhocWorkspace());
-            editor.ReplaceNode(mutant.Mutation.OriginalNode, mutant.Mutation.ReplacementNode);
-            return editor.GetChangedRoot() as T;
+            return statement.ReplaceNode(mutant.Mutation.OriginalNode, mutant.Mutation.ReplacementNode);
         }
     }
 }

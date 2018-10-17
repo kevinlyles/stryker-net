@@ -21,7 +21,7 @@ namespace StrykerNet.UnitTest.Mutants
         {
             _target = new MutantOrchestrator(new Collection<IMutator>
             {
-                new AddMutator()
+                new AddMutator(),
             });
             _currentDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         }

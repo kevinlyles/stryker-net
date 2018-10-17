@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace StrykerNet.UnitTest.Mutants.TestResources
+﻿namespace StrykerNet.UnitTest.Mutants.TestResources
 {
     public class TestClass
     {
