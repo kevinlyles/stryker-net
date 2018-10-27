@@ -1,35 +1,31 @@
-﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis.CSharp;
+﻿using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Stryker.Core.Mutants;
-using Stryker.Core.Mutators;
+using System.Collections.Generic;
 
 namespace Stryker.Core.Mutators
 {
-	public class PostfixUnaryMutator : Mutator<PostfixUnaryExpressionSyntax>, IMutator
-	{
-		private static readonly Dictionary<SyntaxKind, SyntaxKind> UnaryWithOpposite = new Dictionary<SyntaxKind, SyntaxKind>
-		{
-			{SyntaxKind.PostIncrementExpression, SyntaxKind.PostDecrementExpression},
-			{SyntaxKind.PostDecrementExpression, SyntaxKind.PostIncrementExpression},
-		};
+    public class PostfixUnaryMutator : Mutator<PostfixUnaryExpressionSyntax>, IMutator
+    {
+        private static readonly Dictionary<SyntaxKind, SyntaxKind> UnaryWithOpposite = new Dictionary<SyntaxKind, SyntaxKind>
+        {
+            {SyntaxKind.PostIncrementExpression, SyntaxKind.PostDecrementExpression},
+            {SyntaxKind.PostDecrementExpression, SyntaxKind.PostIncrementExpression},
+        };
 
-		public override IEnumerable<Mutation> ApplyMutations(PostfixUnaryExpressionSyntax node)
-		{
-			if (node.Parent == null || node.Parent.Kind() != SyntaxKind.ExpressionStatement)
-			{
-				var unaryKind = node.Kind();
-				if (UnaryWithOpposite.TryGetValue(unaryKind, out var oppositeKind))
-				{
-					yield return new Mutation
-					{
-						OriginalNode = node,
-						ReplacementNode = SyntaxFactory.PostfixUnaryExpression(oppositeKind, node.Operand),
-						DisplayName = $"{unaryKind} to {oppositeKind} mutation",
-						Type = nameof(PostfixUnaryMutator)
-					};
-				}
-			}
-		}
-	}
+        public override IEnumerable<Mutation> ApplyMutations(PostfixUnaryExpressionSyntax node)
+        {
+            SyntaxKind unaryKind = node.Kind();
+            if (UnaryWithOpposite.TryGetValue(unaryKind, out SyntaxKind oppositeKind))
+            {
+                yield return new Mutation
+                {
+                    OriginalNode = node,
+                    ReplacementNode = SyntaxFactory.PostfixUnaryExpression(oppositeKind, node.Operand),
+                    DisplayName = $"{unaryKind} to {oppositeKind} mutation",
+                    Type = nameof(PostfixUnaryMutator)
+                };
+            }
+        }
+    }
 }

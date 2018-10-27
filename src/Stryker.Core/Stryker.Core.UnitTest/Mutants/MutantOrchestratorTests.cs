@@ -23,7 +23,6 @@ namespace StrykerNet.UnitTest.Mutants
 			{
 				new AddMutator(),
 				new PostfixUnaryMutator(),
-				new PostfixUnaryStatementMutator(),
 			});
 			_currentDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 		}
