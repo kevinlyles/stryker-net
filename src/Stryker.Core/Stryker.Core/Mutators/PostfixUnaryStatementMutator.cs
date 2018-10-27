@@ -6,7 +6,7 @@ using Stryker.Core.Mutators;
 
 namespace Stryker.Core.Mutators
 {
-	public class PostfixUnaryMutator : Mutator<PostfixUnaryExpressionSyntax>, IMutator
+	public class PostfixUnaryStatementMutator : Mutator<ExpressionStatementSyntax>, IMutator
 	{
 		private static readonly Dictionary<SyntaxKind, SyntaxKind> UnaryWithOpposite = new Dictionary<SyntaxKind, SyntaxKind>
 		{
@@ -14,17 +14,17 @@ namespace Stryker.Core.Mutators
 			{SyntaxKind.PostDecrementExpression, SyntaxKind.PostIncrementExpression},
 		};
 
-		public override IEnumerable<Mutation> ApplyMutations(PostfixUnaryExpressionSyntax node)
+		public override IEnumerable<Mutation> ApplyMutations(ExpressionStatementSyntax node)
 		{
-			if (node.Parent == null || node.Parent.Kind() != SyntaxKind.ExpressionStatement)
+			if (node.Expression is PostfixUnaryExpressionSyntax expression)
 			{
-				var unaryKind = node.Kind();
+				var unaryKind = expression.Kind();
 				if (UnaryWithOpposite.TryGetValue(unaryKind, out var oppositeKind))
 				{
 					yield return new Mutation
 					{
 						OriginalNode = node,
-						ReplacementNode = SyntaxFactory.PostfixUnaryExpression(oppositeKind, node.Operand),
+						ReplacementNode = SyntaxFactory.ExpressionStatement(SyntaxFactory.PostfixUnaryExpression(oppositeKind, expression.Operand)),
 						DisplayName = $"{unaryKind} to {oppositeKind} mutation",
 						Type = nameof(PostfixUnaryMutator)
 					};

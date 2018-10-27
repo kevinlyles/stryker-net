@@ -70,7 +70,6 @@ namespace Stryker.Core.Mutants
                 foreach (var mutant in FindMutants(statement))
                 {
                     _mutants.Add(mutant);
-                    Console.WriteLine("DEBUG: placed if mutation: " + mutant.Mutation.ReplacementNode.ToString());
                     statementAst = MutationIfPlacer.InsertMutation(statementAst, ApplyMutant(statementAst, mutant), mutant.Id);
                 }
                 ast = statementAst;
@@ -81,7 +80,6 @@ namespace Stryker.Core.Mutants
                 foreach (var mutant in FindMutants(expression))
                 {
                     _mutants.Add(mutant);
-                    Console.WriteLine("DEBUG: placed ternary mutation: " + mutant.Mutation.ReplacementNode.ToString());
                     expressionAst = MutationTernaryPlacer.InsertMutation(expressionAst, ApplyMutant(expressionAst, mutant), mutant.Id);
                 }
                 ast = expressionAst;
