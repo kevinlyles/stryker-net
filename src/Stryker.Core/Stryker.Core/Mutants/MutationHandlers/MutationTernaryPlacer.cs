@@ -11,7 +11,7 @@ namespace Stryker.Core.Mutants.MutationHandlers
         public static ExpressionSyntax InsertMutation(ExpressionSyntax original, ExpressionSyntax mutated, int mutantId)
         {
             // place the mutated statement inside the if statement
-            var result = SyntaxFactory.ParenthesizedExpression(
+            return SyntaxFactory.ParenthesizedExpression(
                 SyntaxFactory.ConditionalExpression(
                     condition: SyntaxFactory.BinaryExpression(SyntaxKind.EqualsExpression,
                     SyntaxFactory.InvocationExpression(
@@ -40,9 +40,6 @@ namespace Stryker.Core.Mutants.MutationHandlers
             )
             // Mark this node as a MutationTernary node. Store the MutantId in the annotation to retrace the mutant later
             .WithAdditionalAnnotations(new SyntaxAnnotation("MutationTernary", mutantId.ToString()));
-            System.Console.WriteLine("DEBUG: " + string.Join(", ", result.GetAnnotations("MutationTernary").Select(annotation => annotation.Kind + " (" + annotation.Data + ")")));
-            System.Console.WriteLine("DEBUG: " + string.Join(", ", result.GetAnnotations(new string[] { "MutationIf", "MutationTernary" }).Select(annotation => annotation.Kind + " (" + annotation.Data + ")")));
-            return result;
         }
 
         public static SyntaxNode RemoveMutation(SyntaxNode node)

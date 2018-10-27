@@ -10,6 +10,8 @@
     <Compile Remove="Mutants\TestResources\Mutator_NoMutationsShouldBeMade.cs" />
     <Compile Remove="Mutants\TestResources\Mutator_SyntaxShouldBe_IfStatement_IN.cs" />
     <Compile Remove="Mutants\TestResources\Mutator_SyntaxShouldBe_IfStatement_OUT.cs" />
+    <Compile Remove="Mutants\TestResources\Mutator_SyntaxShouldBe_IfStatement2_IN.cs" />
+    <Compile Remove="Mutants\TestResources\Mutator_SyntaxShouldBe_IfStatement2_OUT.cs" />
     <Compile Remove="Mutants\TestResources\Mutator_TwoMutationsInOneStatmentShouldBeMade.cs" />
     <Compile Remove="Mutants\TestResources\Mutator_LocalVariableDefinitions_IN.cs" />
     <Compile Remove="Mutants\TestResources\Mutator_LocalVariableDefinitions_OUT.cs" />
@@ -24,10 +26,16 @@
     <Content Include="Mutants\TestResources\Mutator_IfStatementsShouldBe_Nested_OUT.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Mutants\TestResources\Mutator_SyntaxShouldBe_IfStatement_IN.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Mutants\TestResources\Mutator_SyntaxShouldBe_IfStatement_OUT.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Mutants\TestResources\Mutator_SyntaxShouldBe_IfStatement_IN.cs">
+    <Content Include="Mutants\TestResources\Mutator_SyntaxShouldBe_IfStatement2_IN.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Mutants\TestResources\Mutator_SyntaxShouldBe_IfStatement2_OUT.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Mutants\TestResources\Mutator_NoMutationsShouldBeMade.cs">

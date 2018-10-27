@@ -51,6 +51,11 @@ namespace Stryker.Core.Mutants
         /// <returns>Mutated node</returns>
         public SyntaxNode Mutate(SyntaxNode currentNode)
         {
+            if (currentNode is ExpressionStatementSyntax expressionStatement)
+            {
+                return MutateOnlyWithIfStatements(expressionStatement);
+            }
+
             SyntaxNode ast = currentNode;
             var nodesToReplace = new Dictionary<SyntaxNode, SyntaxNode>();
 
@@ -70,7 +75,6 @@ namespace Stryker.Core.Mutants
                 foreach (var mutant in FindMutants(statement))
                 {
                     _mutants.Add(mutant);
-                    Console.WriteLine("DEBUG: placed if mutation: " + mutant.Mutation.ReplacementNode.ToString());
                     statementAst = MutationIfPlacer.InsertMutation(statementAst, ApplyMutant(statementAst, mutant), mutant.Id);
                 }
                 ast = statementAst;
@@ -81,13 +85,50 @@ namespace Stryker.Core.Mutants
                 foreach (var mutant in FindMutants(expression))
                 {
                     _mutants.Add(mutant);
-                    Console.WriteLine("DEBUG: placed ternary mutation: " + mutant.Mutation.ReplacementNode.ToString());
                     expressionAst = MutationTernaryPlacer.InsertMutation(expressionAst, ApplyMutant(expressionAst, mutant), mutant.Id);
                 }
                 ast = expressionAst;
             }
 
             return ast;
+        }
+
+        private SyntaxNode MutateOnlyWithIfStatements(ExpressionStatementSyntax currentNode)
+        {
+            StatementSyntax ast = currentNode;
+            var nodesToReplace = new Dictionary<SyntaxNode, List<Mutant>>();
+
+            foreach (SyntaxNode childNode in currentNode.ChildNodes())
+            {
+                nodesToReplace.Add(childNode, FindAllMutants(childNode).ToList());
+            }
+            foreach (var node in nodesToReplace.Keys)
+            {
+                foreach (var mutant in nodesToReplace[node])
+                {
+                    ast = MutationIfPlacer.InsertMutation(ast, ApplyMutant(currentNode, mutant), mutant.Id);
+                }
+            }
+
+            return ast;
+        }
+
+        private IEnumerable<Mutant> FindAllMutants(SyntaxNode current)
+        {
+            foreach (var childNode in current.ChildNodes())
+            {
+                foreach (var mutant in FindAllMutants(childNode))
+                {
+                    yield return mutant;
+                }
+            }
+            foreach (var mutator in _mutators)
+            {
+                foreach (var mutation in ApplyMutator(current, mutator))
+                {
+                    yield return mutation;
+                }
+            }
         }
 
         private IEnumerable<Mutant> FindMutants(SyntaxNode current)

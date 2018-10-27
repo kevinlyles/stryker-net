@@ -5,7 +5,14 @@
         void TestMethod()
         {
             int i = 0;
-            i = (System.Environment.GetEnvironmentVariable("ActiveMutation") == "0" ? (i - 1) : (i + 1));
+            if (System.Environment.GetEnvironmentVariable("ActiveMutation") == "0")
+            {
+                i = i - 1;
+            }
+            else
+            {
+                i = i + 1;
+            }
         }
     }
 }

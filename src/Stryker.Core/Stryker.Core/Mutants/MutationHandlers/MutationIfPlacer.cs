@@ -14,7 +14,7 @@ namespace Stryker.Core.Mutants.MutationHandlers
         public static StatementSyntax InsertMutation(StatementSyntax original, StatementSyntax mutated, int mutantId)
         {
             // place the mutated statement inside the if statement
-            var result = SyntaxFactory.IfStatement(
+            return SyntaxFactory.IfStatement(
                 condition: SyntaxFactory.BinaryExpression(SyntaxKind.EqualsExpression,
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
@@ -40,8 +40,6 @@ namespace Stryker.Core.Mutants.MutationHandlers
                 @else: SyntaxFactory.ElseClause(SyntaxFactory.Block(original)))
                 // Mark this node as a MutationIf node. Store the MutantId in the annotation to retrace the mutant later
                 .WithAdditionalAnnotations(new SyntaxAnnotation("MutationIf", mutantId.ToString()));
-            System.Console.WriteLine("DEBUG: " + string.Join(", ", result.GetAnnotations("MutationIf").Select(annotation => annotation.ToString())));
-            return result;
         }
 
         public static StatementSyntax RemoveMutation(SyntaxNode node)

@@ -22,6 +22,7 @@ namespace StrykerNet.UnitTest.Mutants
             _target = new MutantOrchestrator(new Collection<IMutator>
             {
                 new AddMutator(),
+                new PostfixUnaryMutator(),
             });
             _currentDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         }
@@ -29,6 +30,7 @@ namespace StrykerNet.UnitTest.Mutants
         [Theory]
         [InlineData("Mutator_IfStatementsShouldBe_Nested_IN.cs", "Mutator_IfStatementsShouldBe_Nested_OUT.cs")]
         [InlineData("Mutator_SyntaxShouldBe_IfStatement_IN.cs", "Mutator_SyntaxShouldBe_IfStatement_OUT.cs")]
+        [InlineData("Mutator_SyntaxShouldBe_IfStatement2_IN.cs", "Mutator_SyntaxShouldBe_IfStatement2_OUT.cs")]
         [InlineData("Mutator_LocalVariableDefinitions_IN.cs", "Mutator_LocalVariableDefinitions_OUT.cs")]
         public void Mutator_TestResourcesInputShouldBecomeOutput(string inputFile, string outputFile)
         {
