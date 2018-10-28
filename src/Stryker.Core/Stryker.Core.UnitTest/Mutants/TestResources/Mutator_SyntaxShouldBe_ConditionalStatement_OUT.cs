@@ -9,9 +9,9 @@ namespace StrykerNet.UnitTest.Mutants.TestResources
         void TestMethod()
         {
             int test = 10;
-            int testPlusTest = System.Environment.GetEnvironmentVariable("ActiveMutation") == "0" ? test - test : test + test;
+            int testPlusTest = (System.Environment.GetEnvironmentVariable("ActiveMutation") == "0" ? (test - test) : (test + test));
 
-            bool Add(int x, int y) => System.Environment.GetEnvironmentVariable("ActiveMutation") == "1" ? x - y : x + y;
+            bool Add(int x, int y) => (System.Environment.GetEnvironmentVariable("ActiveMutation") == "1" ? (x - y) : (x + y));
         }
     }
 }

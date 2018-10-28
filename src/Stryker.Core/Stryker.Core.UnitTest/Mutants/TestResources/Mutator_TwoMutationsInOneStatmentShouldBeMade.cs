@@ -11,7 +11,7 @@ namespace StrykerNet.UnitTest.Mutants.TestResources
             int i = 0;
             if (i + 8 == 8 + i)
             {
-                i--;
+                i = 5;
             };
         }
     }
