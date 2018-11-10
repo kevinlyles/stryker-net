@@ -20,7 +20,8 @@ namespace Stryker.Core.UnitTest.Mutants
         {
             _target = new MutantOrchestrator(new Collection<IMutator>
             {
-                new AddMutator()
+                new BinaryExpressionMutator(),
+				new AssignmentStatementMutator(),
             });
             _currentDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         }
@@ -28,8 +29,9 @@ namespace Stryker.Core.UnitTest.Mutants
         [Theory]
         [InlineData("Mutator_IfStatementsShouldBe_Nested_IN.cs", "Mutator_IfStatementsShouldBe_Nested_OUT.cs")]
         [InlineData("Mutator_SyntaxShouldBe_IfStatement_IN.cs", "Mutator_SyntaxShouldBe_IfStatement_OUT.cs")]
-        [InlineData("Mutator_SyntaxShouldBe_ConditionalStatement_IN.cs", "Mutator_SyntaxShouldBe_ConditionalStatement_OUT.cs")]
-        public void Mutator_TestResourcesInputShouldBecomeOutput(string inputFile, string outputFile)
+		[InlineData("Mutator_SyntaxShouldBe_ConditionalStatement_IN.cs", "Mutator_SyntaxShouldBe_ConditionalStatement_OUT.cs")]
+		[InlineData("Mutator_Test_IN.cs", "Mutator_Test_OUT.cs")]
+		public void Mutator_TestResourcesInputShouldBecomeOutput(string inputFile, string outputFile)
         {
             string source = File.ReadAllText(_currentDirectory + "/Mutants/TestResources/" + inputFile);
             string expected = File.ReadAllText(_currentDirectory + "/Mutants/TestResources/" + outputFile);
@@ -40,7 +42,7 @@ namespace Stryker.Core.UnitTest.Mutants
         }
 
         [Theory]
-        [InlineData("Mutator_TwoMutationsInOneStatmentShouldBeMade.cs", 2)]
+        [InlineData("Mutator_TwoMutationsInOneStatmentShouldBeMade.cs", 3)]
         [InlineData("Mutator_NoMutationsShouldBeMade.cs", 0)]
         public void Mutator_NumberOfMutationsShouldBeCorrect(string inputFile, int numberOfMutations)
         {
