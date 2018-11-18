@@ -9,7 +9,7 @@
                 "TERM=xterm",
                 "dotnet",
                 "build",
-                "${workspaceFolder}/src/Stryker.CLI/Stryker.CLI/Stryker.CLI.csproj",
+                "${workspaceFolder}/src/Stryker.CLI/Stryker.CLI.sln",
             ],
             "problemMatcher": "$msCompile",
         },
