@@ -24,10 +24,10 @@ namespace Stryker.Core.UnitTest.Mutators
         }
 
         [Theory]
-        //[InlineData("Ifs.cs")]
+        [InlineData("Ifs.cs")]
         [InlineData("Loops.cs")]
         [InlineData("Switches.cs")]
-        //[InlineData("TryCatchFinally.cs")]
+        [InlineData("TryCatchFinally.cs")]
         public void Mutator_TestResourcesInputShouldBecomeOutput(string filename)
         {
             string source = File.ReadAllText(Path.Combine(_resourcesDirectory, "In", filename));
