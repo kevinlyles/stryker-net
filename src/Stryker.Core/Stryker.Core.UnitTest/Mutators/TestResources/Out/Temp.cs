@@ -91,11 +91,11 @@ namespace TestApplication
                             // the default list of mutators
                             //new BinaryExpressionMutator(),
                             new BlockMutator(),
-                                /*new BooleanMutator(),
+                                new BooleanMutator(),
                                 new AssignmentStatementMutator(),
                                 new PrefixUnaryMutator(),
                                 new PostfixUnaryMutator(),
-                                new LinqMutator(),*/
+                                new LinqMutator(),
                                 },
                             reporter: _reporter,
                             mutationTestExecutor: new MutationTestExecutor(_input.TestRunner, _input.TimeoutMS));
@@ -134,11 +134,11 @@ namespace TestApplication
                             // the default list of mutators
                             //new BinaryExpressionMutator(),
                             new BlockMutator(),
-                                    /*new BooleanMutator(),
+                                    new BooleanMutator(),
                                     new AssignmentStatementMutator(),
                                     new PrefixUnaryMutator(),
                                     new PostfixUnaryMutator(),
-                                    new LinqMutator(),*/
+                                    new LinqMutator(),
                                     },
                                 reporter: _reporter,
                                 mutationTestExecutor: new MutationTestExecutor(_input.TestRunner, _input.TimeoutMS));
@@ -176,11 +176,11 @@ namespace TestApplication
                             // the default list of mutators
                             //new BinaryExpressionMutator(),
                             new BlockMutator(),
-                                        /*new BooleanMutator(),
+                                        new BooleanMutator(),
                                         new AssignmentStatementMutator(),
                                         new PrefixUnaryMutator(),
                                         new PostfixUnaryMutator(),
-                                        new LinqMutator(),*/
+                                        new LinqMutator(),
                                         },
                                     reporter: _reporter,
                                     mutationTestExecutor: new MutationTestExecutor(_input.TestRunner, _input.TimeoutMS));

@@ -107,18 +107,7 @@ namespace Stryker.Core.Mutators
 
         private static bool HasReturn(SyntaxNode node)
         {
-            foreach (SyntaxNode child in node.ChildNodes())
-            {
-                if (child is ReturnStatementSyntax)
-                {
-                    return true;
-                }
-                else if (HasReturn(child))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return node.DescendantNodes().Any(child => child.Kind() == SyntaxKind.ReturnStatement || child.Kind() == SyntaxKind.ThrowStatement);
         }
 
         private static bool OtherReturnExists(MethodDeclarationSyntax methodDeclaration, SyntaxNode nodeToSkip)
