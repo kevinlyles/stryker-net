@@ -3,8 +3,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
 using Stryker.Core.Mutants;
 using Microsoft.CodeAnalysis;
-using System;
-using System.Collections;
 using System.Linq;
 
 namespace Stryker.Core.Mutators
