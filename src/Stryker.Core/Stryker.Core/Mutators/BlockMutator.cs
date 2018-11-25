@@ -34,9 +34,10 @@ namespace Stryker.Core.Mutators
             DefaultExpressionSyntax returnValue = null;
             if (!MethodReturnsVoid(containingMethod))
             {
+                //Without the leading trivia, there's no space between return and default
                 returnValue = SyntaxFactory.DefaultExpression(containingMethod.ReturnType).WithLeadingTrivia(SyntaxFactory.Whitespace(" "));
             }
-            yield return SyntaxFactory.Block(SyntaxFactory.ReturnStatement(returnValue).WithLeadingTrivia(SyntaxFactory.EndOfLine("\r\n")).WithTrailingTrivia(SyntaxFactory.EndOfLine("\r\n")));
+            yield return SyntaxFactory.Block(SyntaxFactory.ReturnStatement(returnValue));
 
             if (!MustHaveReturn(node, containingMethod))
             {

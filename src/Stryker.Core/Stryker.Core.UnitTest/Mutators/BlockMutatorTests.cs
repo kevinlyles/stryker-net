@@ -24,7 +24,11 @@ namespace Stryker.Core.UnitTest.Mutators
         }
 
         [Theory]
-        [InlineData("Ifs.cs")]
+        [InlineData("IfElseBothMustReturn.cs")]
+        [InlineData("IfNoReturnCouldReturn.cs")]
+        [InlineData("IfNoReturnVoid.cs")]
+        [InlineData("IfReturnCouldReturn.cs")]
+        [InlineData("IfReturnVoid.cs")]
         [InlineData("Loops.cs")]
         [InlineData("Switches.cs")]
         [InlineData("TryCatchFinally.cs")]
@@ -39,7 +43,8 @@ namespace Stryker.Core.UnitTest.Mutators
             var orchestrator = new MutantOrchestrator(mutators);
             var actualNode = orchestrator.Mutate(CSharpSyntaxTree.ParseText(source).GetRoot());
             var expectedNode = CSharpSyntaxTree.ParseText(expected).GetRoot();
-            actualNode.ShouldBeSemantically(expectedNode);
+            //Without the ToString, some of the tests "fail", even though they're identical
+            actualNode.ToString().ShouldBeSemantically(expectedNode.ToString());
         }
     }
 }
