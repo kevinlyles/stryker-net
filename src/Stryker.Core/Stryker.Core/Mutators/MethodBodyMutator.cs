@@ -8,15 +8,19 @@ using System;
 
 namespace Stryker.Core.Mutators
 {
-    public class MethodBodyMutator : Mutator<MethodDeclarationSyntax>, IMutator
+    public class MethodBodyMutator : Mutator<BlockSyntax>, IMutator
     {
-        public override IEnumerable<Mutation> ApplyMutations(MethodDeclarationSyntax node)
+        public override IEnumerable<Mutation> ApplyMutations(BlockSyntax node)
         {
+            if (!(node.Parent is MethodDeclarationSyntax methodDeclaration))
+            {
+                yield break;
+            }
             yield return new Mutation()
             {
                 DisplayName = "Method body mutation",
                 OriginalNode = node,
-                ReplacementNode = GetReplacement(node),
+                ReplacementNode = GetReplacement(methodDeclaration).Body,
                 Type = nameof(MethodBodyMutator),
             };
         }
