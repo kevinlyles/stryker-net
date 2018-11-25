@@ -38,7 +38,15 @@ namespace Stryker.Core.Mutators
                     //Without the leading trivia, there's no space between return and default
                     returnStatement = SyntaxFactory.ReturnStatement(SyntaxFactory.DefaultExpression(node.ReturnType).WithLeadingTrivia(SyntaxFactory.Whitespace(" ")));
                 }
-                replacementBody = SyntaxFactory.Block().AddStatements(setOutParameters.Select(expression => SyntaxFactory.ExpressionStatement(expression)).ToArray()).AddStatements(returnStatement);
+                replacementBody = SyntaxFactory.Block();
+                if (setOutParameters.Any()) {
+                    var setOutParameterStatements = setOutParameters.Select(expression => SyntaxFactory.ExpressionStatement(expression));
+                    replacementBody = replacementBody.AddStatements(setOutParameterStatements.ToArray());
+                }
+                if (returnStatement != null)
+                {
+                    replacementBody = replacementBody.AddStatements(returnStatement);
+                }
             }
             ArrowExpressionClauseSyntax replacementExpressionBody = null;
             if (node.ExpressionBody != null)

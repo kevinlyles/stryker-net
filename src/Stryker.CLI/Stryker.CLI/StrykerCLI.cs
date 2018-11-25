@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.CommandLineUtils;
+﻿using System;
+using System.IO;
+using System.Reflection;
+using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using Stryker.Core;
 using Stryker.Core.Logging;
 using Stryker.Core.Options;
-using System;
-using System.IO;
-using System.Reflection;
 
 namespace Stryker.CLI
 {
@@ -13,7 +13,7 @@ namespace Stryker.CLI
     {
         private IStrykerRunner _stryker { get; set; }
         private ILogger _logger { get; set; }
-        public int ExitCode {get; set; }
+        public int ExitCode { get; set; }
 
         public StrykerCLI(IStrykerRunner stryker)
         {
@@ -28,7 +28,7 @@ namespace Stryker.CLI
         /// <param name="args">User input</param>
         public int Run(string[] args)
         {
-            var app = new CommandLineApplication
+            CommandLineApplication app = new CommandLineApplication
             {
                 Name = "StrykerNet",
                 FullName = "StrykerNet: Stryker mutator for .Net Core",
@@ -36,22 +36,23 @@ namespace Stryker.CLI
                 ExtendedHelpText = "Welcome to StrykerNet for .Net Core. Run dotnet stryker to kick off a mutation test run"
             };
 
-            var configFilePathParam = CreateOption(app, CLIOptions.ConfigFilePath);
-            var reporterParam = CreateOption(app, CLIOptions.Reporter);
-            var logConsoleParam = CreateOption(app, CLIOptions.LogLevel);
-            var timeoutParam = CreateOption(app, CLIOptions.AdditionalTimeoutMS);
-            var fileLogParam = CreateOption(app, CLIOptions.UseLogLevelFile);
-            var projectNameParam = CreateOption(app, CLIOptions.ProjectFileName);
-            var maxConcurrentTestRunnersParam = CreateOption(app, CLIOptions.MaxConcurrentTestRunners);
-            var thresholdHighParam = CreateOption(app, CLIOptions.ThresholdHigh);
-            var thresholdLowParam = CreateOption(app, CLIOptions.ThresholdLow);
-            var thresholdBreakParam = CreateOption(app, CLIOptions.ThresholdBreak);
+            CommandOption configFilePathParam = CreateOption(app, CLIOptions.ConfigFilePath);
+            CommandOption reporterParam = CreateOption(app, CLIOptions.Reporter);
+            CommandOption logConsoleParam = CreateOption(app, CLIOptions.LogLevel);
+            CommandOption timeoutParam = CreateOption(app, CLIOptions.AdditionalTimeoutMS);
+            CommandOption fileLogParam = CreateOption(app, CLIOptions.UseLogLevelFile);
+            CommandOption projectNameParam = CreateOption(app, CLIOptions.ProjectFileName);
+            CommandOption maxConcurrentTestRunnersParam = CreateOption(app, CLIOptions.MaxConcurrentTestRunners);
+            CommandOption thresholdHighParam = CreateOption(app, CLIOptions.ThresholdHigh);
+            CommandOption thresholdLowParam = CreateOption(app, CLIOptions.ThresholdLow);
+            CommandOption thresholdBreakParam = CreateOption(app, CLIOptions.ThresholdBreak);
 
             app.HelpOption("--help | -h | -?");
 
-            app.OnExecute(() => {
+            app.OnExecute(() =>
+            {
                 // app started
-                var options = new OptionsBuilder().Build(
+                StrykerOptions options = new OptionsBuilder().Build(
                     Directory.GetCurrentDirectory(),
                     reporterParam,
                     projectNameParam,
@@ -65,35 +66,37 @@ namespace Stryker.CLI
                     thresholdBreakParam
                     );
                 RunStryker(options);
-                return this.ExitCode;
+                return ExitCode;
             });
             return app.Execute(args);
         }
-        
+
         private void RunStryker(StrykerOptions options)
         {
             // start with the stryker header
             PrintStykerASCIIName();
 
             try
-            {  
-               StrykerRunResult results = _stryker.RunMutationTest(options);
-               if(!results.isScoreAboveThresholdBreak()) 
-               {
-                   this.HandleBreakingThresholdScore(options, results);
-               }
+            {
+                StrykerRunResult results = _stryker.RunMutationTest(options);
+                if (!results.isScoreAboveThresholdBreak())
+                {
+                    HandleBreakingThresholdScore(options, results);
+                }
             }
             catch (Exception)
             {
-                this.ExitCode = 1;
+                ExitCode = 1;
+                Console.ReadKey();
             }
         }
 
-        private void HandleBreakingThresholdScore(StrykerOptions options, StrykerRunResult results) {
+        private void HandleBreakingThresholdScore(StrykerOptions options, StrykerRunResult results)
+        {
             _logger.LogError($@"Final mutation score: {results.mutationScore * 100} under breaking threshold value {options.ThresholdOptions.ThresholdBreak}.
 Setting exit code to 1 (failure).
 Improve the mutation score or set the `threshold-break` value lower to prevent this error in the future.");
-            this.ExitCode = 1;
+            ExitCode = 1;
         }
 
         private void PrintStrykerASCIILogo()
@@ -128,18 +131,19 @@ Improve the mutation score or set the `threshold-break` value lower to prevent t
                    __/ |                                   
                   |___/                                    
 ");
-            var assembly = Assembly.GetExecutingAssembly();
-            var assemblyVersion = assembly.GetName().Version;
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            Version assemblyVersion = assembly.GetName().Version;
 
             Console.WriteLine($@"
 Version {assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build} (beta)
-"); 
+");
         }
 
         /// <summary>
         /// Simplify app option creation to prevent code duplication
         /// </summary>
-        private CommandOption CreateOption<T>(CommandLineApplication app, CLIOption<T> option) where T : IConvertible {
+        private CommandOption CreateOption<T>(CommandLineApplication app, CLIOption<T> option) where T : IConvertible
+        {
             return app.Option($"{option.ArgumentName} | {option.ArgumentShortName}",
                 option.ArgumentDescription,
                 CommandOptionType.SingleValue);

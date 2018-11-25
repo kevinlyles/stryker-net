@@ -1,7 +1,8 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Collections.Generic;
 
 namespace Stryker.Core.Mutants
 {
@@ -24,6 +25,24 @@ namespace Stryker.Core.Mutants
             {
                 // return original statement
                 return ifStatement.Else.Statement;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static BlockSyntax PlaceWithWrappedIfStatement(StatementSyntax original, StatementSyntax mutated, int mutantId)
+        {
+            return SyntaxFactory.Block(PlaceWithIfStatement(original, mutated, mutantId))
+                .WithAdditionalAnnotations(new SyntaxAnnotation("MutationBlock", mutantId.ToString()));
+        }
+
+        public static SyntaxNode RemoveByWrappedIfStatement(SyntaxNode node)
+        {
+            if (node is BlockSyntax block)
+            {
+                return RemoveByIfStatement(block.ChildNodes().FirstOrDefault());
             }
             else
             {

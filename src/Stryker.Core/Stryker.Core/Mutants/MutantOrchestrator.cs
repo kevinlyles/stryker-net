@@ -1,12 +1,12 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 using Stryker.Core.Logging;
 using Stryker.Core.Mutators;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace Stryker.Core.Mutants
 {
@@ -46,7 +46,7 @@ namespace Stryker.Core.Mutants
         /// <returns>Mutants</returns>
         public IEnumerable<Mutant> GetLatestMutantBatch()
         {
-            var tempMutants = _mutants;
+            ICollection<Mutant> tempMutants = _mutants;
             _mutants = new Collection<Mutant>();
             return tempMutants;
         }
@@ -62,7 +62,7 @@ namespace Stryker.Core.Mutants
             {
                 // The mutations should be placed using a ConditionalExpression
                 ExpressionSyntax expressionAst = expressionSyntax;
-                foreach (var mutant in FindMutants(expressionSyntax))
+                foreach (Mutant mutant in FindMutants(expressionSyntax))
                 {
                     _mutants.Add(mutant);
                     ExpressionSyntax mutatedNode = ApplyMutant(expressionSyntax, mutant);
@@ -74,7 +74,7 @@ namespace Stryker.Core.Mutants
             {
                 StatementSyntax statement = currentNode as StatementSyntax;
                 // The mutations should be placed using an IfStatement
-                foreach (var mutant in currentNode.ChildNodes().SelectMany(FindMutants))
+                foreach (Mutant mutant in currentNode.ChildNodes().SelectMany(FindMutants))
                 {
                     _mutants.Add(mutant);
                     StatementSyntax mutatedNode = ApplyMutant(statement, mutant);
@@ -82,31 +82,39 @@ namespace Stryker.Core.Mutants
                 }
                 return ast;
             }
-            else
+            else if (currentNode is BlockSyntax block)
             {
-                // No statement found yet, search deeper in the tree for statements to mutate
-                var children = currentNode.ChildNodes().ToList();
-                var childCopy = currentNode.TrackNodes(children);
-                foreach (var child in children)
+                BlockSyntax mutatedBlock = block;
+                foreach (Mutant mutant in FindMutants(block))
                 {
-                    var mutatedNode = Mutate(child);
-                    childCopy = childCopy.ReplaceNode(childCopy.GetCurrentNode(child), mutatedNode);
+                    _mutants.Add(mutant);
+                    BlockSyntax mutatedNode = ApplyMutant(block, mutant);
+                    mutatedBlock = MutantPlacer.PlaceWithWrappedIfStatement(mutatedBlock, mutatedNode, mutant.Id);
                 }
-                return childCopy;
+                currentNode = mutatedBlock;
             }
+            // No statement found yet, search deeper in the tree for statements to mutate
+            List<SyntaxNode> children = currentNode.ChildNodes().ToList();
+            SyntaxNode childCopy = currentNode.TrackNodes(children);
+            foreach (SyntaxNode child in children)
+            {
+                SyntaxNode mutatedNode = Mutate(child);
+                childCopy = childCopy.ReplaceNode(childCopy.GetCurrentNode(child), mutatedNode);
+            }
+            return childCopy;
         }
 
 
         private IEnumerable<Mutant> FindMutants(SyntaxNode current)
         {
-            foreach (var mutator in _mutators)
+            foreach (IMutator mutator in _mutators)
             {
-                foreach (var mutation in ApplyMutator(current, mutator))
+                foreach (Mutant mutation in ApplyMutator(current, mutator))
                 {
                     yield return mutation;
                 }
             }
-            foreach (var mutant in current.ChildNodes().SelectMany(FindMutants))
+            foreach (Mutant mutant in current.ChildNodes().SelectMany(FindMutants))
             {
                 yield return mutant;
             }
@@ -117,8 +125,8 @@ namespace Stryker.Core.Mutants
         /// </summary>
         private IEnumerable<Mutant> ApplyMutator(SyntaxNode syntaxNode, IMutator mutator)
         {
-            var mutations = mutator.Mutate(syntaxNode);
-            foreach (var mutation in mutations)
+            IEnumerable<Mutation> mutations = mutator.Mutate(syntaxNode);
+            foreach (Mutation mutation in mutations)
             {
                 _logger.LogDebug("Mutant {0} created {1} -> {2} using {3}", _mutantCount, mutation.OriginalNode, mutation.ReplacementNode, mutator.GetType());
                 yield return new Mutant()
@@ -130,9 +138,9 @@ namespace Stryker.Core.Mutants
             }
         }
 
-        private T ApplyMutant<T>(T node, Mutant mutant) where T: SyntaxNode
+        private T ApplyMutant<T>(T node, Mutant mutant) where T : SyntaxNode
         {
-            var mutatedNode = node.ReplaceNode(mutant.Mutation.OriginalNode, mutant.Mutation.ReplacementNode);
+            T mutatedNode = node.ReplaceNode(mutant.Mutation.OriginalNode, mutant.Mutation.ReplacementNode);
             return mutatedNode;
         }
 
@@ -141,16 +149,16 @@ namespace Stryker.Core.Mutants
             switch (node.GetType().Name)
             {
                 case nameof(LocalDeclarationStatementSyntax):
-                    var localDeclarationStatement = node as LocalDeclarationStatementSyntax;
+                    LocalDeclarationStatementSyntax localDeclarationStatement = node as LocalDeclarationStatementSyntax;
                     return localDeclarationStatement.Declaration.Variables.First().Initializer?.Value;
                 case nameof(AssignmentExpressionSyntax):
-                    var assignmentExpression = node as AssignmentExpressionSyntax;
+                    AssignmentExpressionSyntax assignmentExpression = node as AssignmentExpressionSyntax;
                     return assignmentExpression.Right;
                 case nameof(ReturnStatementSyntax):
-                    var returnStatement = node as ReturnStatementSyntax;
+                    ReturnStatementSyntax returnStatement = node as ReturnStatementSyntax;
                     return returnStatement.Expression;
                 case nameof(LocalFunctionStatementSyntax):
-                    var localFunction = node as LocalFunctionStatementSyntax;
+                    LocalFunctionStatementSyntax localFunction = node as LocalFunctionStatementSyntax;
                     return localFunction.ExpressionBody?.Expression;
                 default:
                     return null;
