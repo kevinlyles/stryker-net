@@ -15,6 +15,16 @@
     <Compile Remove="Mutants\TestResources\Mutator_SyntaxShouldBe_IfStatement_IN.cs" />
     <Compile Remove="Mutants\TestResources\Mutator_SyntaxShouldBe_IfStatement_OUT.cs" />
     <Compile Remove="Mutants\TestResources\Mutator_TwoMutationsInOneStatmentShouldBeMade.cs" />
+    <Compile Remove="Mutators\TestResources\In\Ifs.cs" />
+    <Compile Remove="Mutators\TestResources\In\Loops.cs" />
+    <Compile Remove="Mutators\TestResources\In\Switches.cs" />
+    <Compile Remove="Mutators\TestResources\In\TryCatchFinally.cs" />
+    <Compile Remove="Mutators\TestResources\Out\Ifs.cs" />
+    <Compile Remove="Mutators\TestResources\Out\Loops.cs" />
+    <Compile Remove="Mutators\TestResources\Out\Switches.cs" />
+    <Compile Remove="Mutators\TestResources\Out\TryCatchFinally.cs" />
+    <!-- TODO: remove this -->
+    <Compile Remove="Mutators\TestResources\Out\Temp.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Initialisation\TestResources\ExampleSourceFile.cs">
@@ -48,6 +58,30 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Mutants\TestResources\Mutator_TwoMutationsInOneStatmentShouldBeMade.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Mutators\TestResources\In\Ifs.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Mutators\TestResources\In\Loops.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Mutators\TestResources\In\Switches.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Mutators\TestResources\In\TryCatchFinally.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Mutators\TestResources\Out\Ifs.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Mutators\TestResources\Out\Loops.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Mutators\TestResources\Out\Switches.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Mutators\TestResources\Out\TryCatchFinally.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

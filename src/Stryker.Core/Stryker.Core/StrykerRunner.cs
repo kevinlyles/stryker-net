@@ -15,7 +15,7 @@ namespace Stryker.Core
     {
         StrykerRunResult RunMutationTest(StrykerOptions options);
     }
-    
+
     public class StrykerRunner : IStrykerRunner
     {
         private IReporter _reporter { get; set; }
@@ -54,18 +54,16 @@ namespace Stryker.Core
 
                 _mutationTestProcess = _mutationTestProcess ?? new MutationTestProcess(
                     mutationTestInput: _input,
-                    mutators: new List<IMutator> ()
+                    mutators: new List<IMutator>()
                         {
                             // the default list of mutators
-                            new BinaryExpressionMutator(),
-                            new BooleanMutator(),
+                            //new BinaryExpressionMutator(),
+                            new BlockMutator(),
+                            /*new BooleanMutator(),
                             new AssignmentStatementMutator(),
                             new PrefixUnaryMutator(),
                             new PostfixUnaryMutator(),
-                            new CheckedMutator(),
-                            new LinqMutator(),
-                            new StringMutator(),
-                            new InterpolatedStringMutator()
+                            new LinqMutator(),*/
                         },
                     reporter: _reporter,
                     mutationTestExecutor: new MutationTestExecutor(_input.TestRunner, _input.TimeoutMS));
@@ -81,7 +79,8 @@ namespace Stryker.Core
                 logger.LogError(ex, "An error occurred during the mutation test run ");
                 throw;
             }
-            finally {
+            finally
+            {
                 // log duration
                 stopwatch.Stop();
                 logger.LogInformation("Time Elapsed {0}", stopwatch.Elapsed);

@@ -30,7 +30,7 @@ namespace Stryker.CLI
                         .SetBasePath(basePath)
                         .AddJsonFile(GetOption(configFilePath, CLIOptions.ConfigFilePath))
                         .Build().GetSection("stryker-config");
-            }  
+            }
             return new StrykerOptions(
                 basePath,
                 GetOption(reporter, CLIOptions.Reporter),
@@ -44,26 +44,26 @@ namespace Stryker.CLI
                 GetOption(thresholdBreak, CLIOptions.ThresholdBreak));
         }
         private T GetOption<T>(CommandOption value, CLIOption<T> defaultValue) where T : IConvertible
-        { 
+        {
             if (value.HasValue())
             {
                 //Convert commandOptionValue to desired type
                 return (T)Convert.ChangeType(value.Value(), typeof(T));
             }
-            if(config != null)
+            if (config != null)
             {
                 // Check if there is a threshold options object and use it when it's available
                 string thresholdOptionsSectionKey = "threshold-options";
-                if(config.GetSection(thresholdOptionsSectionKey).Exists() && 
+                if (config.GetSection(thresholdOptionsSectionKey).Exists() &&
                     !string.IsNullOrEmpty(config.GetSection(thresholdOptionsSectionKey).GetValue(defaultValue.JsonKey, string.Empty).ToString()))
-                {   
+                {
                     return config.GetSection(thresholdOptionsSectionKey).GetValue<T>(defaultValue.JsonKey);
                 }
                 //Else return config value            
-                else if(!string.IsNullOrEmpty(config.GetValue(defaultValue.JsonKey, string.Empty).ToString()))
+                else if (!string.IsNullOrEmpty(config.GetValue(defaultValue.JsonKey, string.Empty).ToString()))
                 {
                     return config.GetValue<T>(defaultValue.JsonKey);
-                }                   
+                }
             }
             //Else return default
             return defaultValue.DefaultValue;

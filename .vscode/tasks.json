@@ -51,5 +51,39 @@
             ],
             "problemMatcher": [],
         },
+        {
+            "label": "Run CLI unit tests",
+            "command": "env",
+            "type": "process",
+            "args": [
+                "TERM=xterm",
+                "dotnet",
+                "test",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/Stryker.CLI/Stryker.CLI.UnitTest"
+            },
+            "dependsOn": [
+                "build"
+            ],
+            "problemMatcher": "$msCompile",
+        },
+        {
+            "label": "Run Core unit tests",
+            "command": "env",
+            "type": "process",
+            "args": [
+                "TERM=xterm",
+                "dotnet",
+                "test",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/Stryker.Core/Stryker.Core.UnitTest"
+            },
+            "dependsOn": [
+                "build"
+            ],
+            "problemMatcher": "$msCompile",
+        },
     ],
 }
