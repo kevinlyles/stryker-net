@@ -110,6 +110,10 @@ namespace Stryker.Core.Mutators
             return node.DescendantNodes().Any(child => child.Kind() == SyntaxKind.ReturnStatement || child.Kind() == SyntaxKind.ThrowStatement);
         }
 
+        // This is probably imperfect (the other return might not be guaranteed to happen).
+        // I'm not sure how to best address that without the ability to check and see if a change will compile.
+        // Maybe we should have a more robust rollback that will add (and compile) things one at a time
+        // if everything together fails, and skip any that introduce compilation errors.
         private static bool OtherReturnExists(MethodDeclarationSyntax methodDeclaration, SyntaxNode nodeToSkip)
         {
             return methodDeclaration.DescendantNodes(node => node != nodeToSkip).OfType<ReturnStatementSyntax>().Any();

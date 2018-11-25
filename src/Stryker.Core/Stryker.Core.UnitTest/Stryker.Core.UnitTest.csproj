@@ -23,8 +23,6 @@
     <Compile Remove="Mutators\TestResources\Out\Loops.cs" />
     <Compile Remove="Mutators\TestResources\Out\Switches.cs" />
     <Compile Remove="Mutators\TestResources\Out\TryCatchFinally.cs" />
-    <!-- TODO: remove this -->
-    <Compile Remove="Mutators\TestResources\Out\Temp.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Initialisation\TestResources\ExampleSourceFile.cs">
