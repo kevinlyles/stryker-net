@@ -57,13 +57,16 @@ namespace Stryker.Core
                     mutators: new List<IMutator>()
                         {
                             // the default list of mutators
-                            //new BinaryExpressionMutator(),
-                            new BlockMutator(),
-                            /*new BooleanMutator(),
                             new AssignmentStatementMutator(),
-                            new PrefixUnaryMutator(),
+                            new BinaryExpressionMutator(),
+                            new BlockMutator(),
+                            new BooleanMutator(),
+                            new CheckedMutator(),
+                            new InterpolatedStringMutator(),
+                            new LinqMutator(),
                             new PostfixUnaryMutator(),
-                            new LinqMutator(),*/
+                            new PrefixUnaryMutator(),
+                            new StringMutator(),
                         },
                     reporter: _reporter,
                     mutationTestExecutor: new MutationTestExecutor(_input.TestRunner, _input.TimeoutMS));
