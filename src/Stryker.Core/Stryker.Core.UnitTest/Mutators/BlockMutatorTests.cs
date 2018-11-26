@@ -29,8 +29,8 @@ namespace Stryker.Core.UnitTest.Mutators
         [InlineData("IfNoReturnVoid.cs")]
         [InlineData("IfReturnCouldReturn.cs")]
         [InlineData("IfReturnVoid.cs")]
-        [InlineData("Loops.cs")]
-        [InlineData("Switches.cs")]
+        [InlineData("Loop.cs")]
+        [InlineData("Switch.cs")]
         [InlineData("TryCatchFinally.cs")]
         public void Mutator_TestResourcesInputShouldBecomeOutput(string filename)
         {

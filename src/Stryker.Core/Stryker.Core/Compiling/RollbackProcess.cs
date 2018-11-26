@@ -15,7 +15,7 @@ namespace Stryker.Core.Compiling
     {
         RollbackProcessResult Start(CSharpCompilation compiler, ImmutableArray<Diagnostic> diagnostics);
     }
-    
+
     /// <summary>
     /// Responsible for rolling back all mutations that prevent compiling the mutated assembly
     /// </summary>
@@ -45,7 +45,7 @@ namespace Stryker.Core.Compiling
             }
 
             // remove the broken mutations from the syntaxtrees
-            foreach(var syntaxTreeMap in syntaxTreeMapping.Where(x => x.Value.Any()))
+            foreach (var syntaxTreeMap in syntaxTreeMapping.Where(x => x.Value.Any()))
             {
                 _logger.LogDebug("Rollbacking mutations from {0}", syntaxTreeMap.Key.FilePath);
                 _logger.LogTrace("source {1}", syntaxTreeMap.Key.ToString());
@@ -58,7 +58,8 @@ namespace Stryker.Core.Compiling
             }
 
             // by returning the same compiler object (with different syntax trees) the next compilation will use Roslyn's incremental compilation
-            return new RollbackProcessResult() {
+            return new RollbackProcessResult()
+            {
                 Compilation = compiler,
                 RollbackedIds = _rollbackedIds
             };
@@ -66,7 +67,7 @@ namespace Stryker.Core.Compiling
 
         private (SyntaxNode, int) FindMutationIfAndId(SyntaxNode node)
         {
-            var annotation = node.GetAnnotations(new string[] { "MutationIf", "MutationConditional" });
+            var annotation = node.GetAnnotations(new string[] { "MutationIf", "MutationConditional", "MutationBlock" });
             if (annotation.Any())
             {
                 string data = annotation.First().Data;
@@ -76,7 +77,7 @@ namespace Stryker.Core.Compiling
             }
             else
             {
-                if(node.Parent == null)
+                if (node.Parent == null)
                 {
                     return (null, 0);
                 }
@@ -114,9 +115,14 @@ namespace Stryker.Core.Compiling
                 if (nodeToRemove is IfStatementSyntax)
                 {
                     trackedTree = trackedTree.ReplaceNode(nodeToRemove, MutantPlacer.RemoveByIfStatement(nodeToRemove));
-                } else if (nodeToRemove is ConditionalExpressionSyntax)
+                }
+                else if (nodeToRemove is ConditionalExpressionSyntax)
                 {
                     trackedTree = trackedTree.ReplaceNode(nodeToRemove, MutantPlacer.RemoveByConditionalExpression(nodeToRemove));
+                }
+                else if (nodeToRemove is BlockSyntax)
+                {
+                    trackedTree = trackedTree.ReplaceNode(nodeToRemove, MutantPlacer.RemoveByWrappedIfStatement(nodeToRemove));
                 }
             }
             return trackedTree.SyntaxTree;

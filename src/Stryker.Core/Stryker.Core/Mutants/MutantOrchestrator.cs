@@ -82,30 +82,33 @@ namespace Stryker.Core.Mutants
                 }
                 return ast;
             }
-            else if (currentNode is BlockSyntax block)
+            else
             {
-                BlockSyntax mutatedBlock = block;
-                foreach (Mutant mutant in FindMutants(block))
+                // No statement found yet, search deeper in the tree for statements to mutate
+                List<SyntaxNode> children = currentNode.ChildNodes().ToList();
+                SyntaxNode childCopy = currentNode.TrackNodes(children);
+                foreach (SyntaxNode child in children)
+                {
+                    SyntaxNode mutatedNode = Mutate(child);
+                    childCopy = childCopy.ReplaceNode(childCopy.GetCurrentNode(child), mutatedNode);
+                }
+                currentNode = childCopy;
+            }
+            if (currentNode is BlockSyntax block)
+            {
+                StatementSyntax mutatedBlock = block;
+                foreach (Mutant mutant in FindDirectMutants(block))
                 {
                     _mutants.Add(mutant);
                     BlockSyntax mutatedNode = ApplyMutant(block, mutant);
                     mutatedBlock = MutantPlacer.PlaceWithWrappedIfStatement(mutatedBlock, mutatedNode, mutant.Id);
                 }
-                currentNode = mutatedBlock;
+                return mutatedBlock;
             }
-            // No statement found yet, search deeper in the tree for statements to mutate
-            List<SyntaxNode> children = currentNode.ChildNodes().ToList();
-            SyntaxNode childCopy = currentNode.TrackNodes(children);
-            foreach (SyntaxNode child in children)
-            {
-                SyntaxNode mutatedNode = Mutate(child);
-                childCopy = childCopy.ReplaceNode(childCopy.GetCurrentNode(child), mutatedNode);
-            }
-            return childCopy;
+            return currentNode;
         }
 
-
-        private IEnumerable<Mutant> FindMutants(SyntaxNode current)
+        private IEnumerable<Mutant> FindDirectMutants(SyntaxNode current)
         {
             foreach (IMutator mutator in _mutators)
             {
@@ -113,6 +116,14 @@ namespace Stryker.Core.Mutants
                 {
                     yield return mutation;
                 }
+            }
+        }
+
+        private IEnumerable<Mutant> FindMutants(SyntaxNode current)
+        {
+            foreach (var mutant in FindDirectMutants(current))
+            {
+                yield return mutant;
             }
             foreach (Mutant mutant in current.ChildNodes().SelectMany(FindMutants))
             {

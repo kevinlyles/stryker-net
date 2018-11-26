@@ -58,9 +58,9 @@ namespace Stryker.Core
                         {
                             // the default list of mutators
                             /*new AssignmentStatementMutator(),
-                            new BinaryExpressionMutator(),
+                            new BinaryExpressionMutator(),*/
                             new BlockMutator(),
-                            new BooleanMutator(),
+                            /*new BooleanMutator(),
                             new CheckedMutator(),*/
                             new MethodBodyMutator(),
                             /*new InterpolatedStringMutator(),

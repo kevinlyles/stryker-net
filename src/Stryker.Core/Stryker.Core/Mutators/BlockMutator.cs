@@ -11,6 +11,10 @@ namespace Stryker.Core.Mutators
     {
         public override IEnumerable<Mutation> ApplyMutations(BlockSyntax node)
         {
+            if (node.Parent?.Kind() == SyntaxKind.MethodDeclaration)
+            {
+                yield break;
+            }
             foreach (BlockSyntax replacement in GetReplacements(node))
             {
                 yield return new Mutation()

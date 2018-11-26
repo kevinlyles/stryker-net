@@ -11,12 +11,17 @@ namespace Stryker.Core.Mutants
         public static IfStatementSyntax PlaceWithIfStatement(StatementSyntax original, StatementSyntax mutated, int mutantId)
         {
             // place the mutated statement inside the if statement
+            return GetIfStatement(original, mutated, mutantId)
+                // Mark this node as a MutationIf node. Store the MutantId in the annotation to retrace the mutant later
+                .WithAdditionalAnnotations(new SyntaxAnnotation("MutationIf", mutantId.ToString()));
+        }
+
+        private static IfStatementSyntax GetIfStatement(StatementSyntax original, StatementSyntax mutated, int mutantId)
+        {
             return SyntaxFactory.IfStatement(
                 condition: GetBinaryExpression(mutantId),
                 statement: SyntaxFactory.Block(mutated),
-                @else: SyntaxFactory.ElseClause(SyntaxFactory.Block(original)))
-                // Mark this node as a MutationIf node. Store the MutantId in the annotation to retrace the mutant later
-                .WithAdditionalAnnotations(new SyntaxAnnotation("MutationIf", mutantId.ToString()));
+                @else: SyntaxFactory.ElseClause(SyntaxFactory.Block(original)));
         }
 
         public static SyntaxNode RemoveByIfStatement(SyntaxNode node)
@@ -32,10 +37,17 @@ namespace Stryker.Core.Mutants
             }
         }
 
-        public static BlockSyntax PlaceWithWrappedIfStatement(StatementSyntax original, StatementSyntax mutated, int mutantId)
+        public static StatementSyntax PlaceWithWrappedIfStatement(StatementSyntax original, StatementSyntax mutated, int mutantId)
         {
-            return SyntaxFactory.Block(PlaceWithIfStatement(original, mutated, mutantId))
-                .WithAdditionalAnnotations(new SyntaxAnnotation("MutationBlock", mutantId.ToString()));
+            if (original.Parent?.Kind() == SyntaxKind.Block)
+            {
+                return PlaceWithIfStatement(original, mutated, mutantId);
+            }
+            else
+            {
+                return SyntaxFactory.Block(GetIfStatement(original, mutated, mutantId))
+                    .WithAdditionalAnnotations(new SyntaxAnnotation("MutationBlock", mutantId.ToString()));
+            }
         }
 
         public static SyntaxNode RemoveByWrappedIfStatement(SyntaxNode node)
